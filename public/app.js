@@ -19,6 +19,11 @@ const ASSET_NAMES = {
 
 const elements = {
   form: document.querySelector('#search-form'),
+  searchCard: document.querySelector('#search-card'),
+  searchToggle: document.querySelector('#search-toggle'),
+  searchToggleLabel: document.querySelector('#search-toggle-label'),
+  searchSummary: document.querySelector('#search-summary'),
+  headerSearchButton: document.querySelector('#header-search-button'),
   regionField: document.querySelector('#region-field'),
   regionInput: document.querySelector('#region-input'),
   regionOptions: document.querySelector('#region-options'),
@@ -31,6 +36,7 @@ const elements = {
   formError: document.querySelector('#form-error'),
   quickRegions: [...document.querySelectorAll('.quick-regions button')],
   resultsTitle: document.querySelector('#results-title'),
+  resultsSection: document.querySelector('#results'),
   resultsDescription: document.querySelector('#results-description'),
   feedback: document.querySelector('#feedback'),
   resultsContent: document.querySelector('#results-content'),
@@ -40,6 +46,7 @@ const elements = {
   sortSelect: document.querySelector('#sort-select'),
   limitNotice: document.querySelector('#limit-notice'),
   priceHeading: document.querySelector('#price-heading'),
+  listCard: document.querySelector('.list-card'),
   tableWrap: document.querySelector('#table-wrap'),
   rows: document.querySelector('#transaction-rows'),
   emptyState: document.querySelector('#empty-state'),
@@ -66,6 +73,34 @@ const state = {
   page: 1,
   hasResults: false,
 };
+
+const mobileSearch = window.matchMedia('(max-width: 620px)');
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+function setSearchCollapsed(collapsed) {
+  const shouldCollapse = mobileSearch.matches && collapsed;
+  elements.form.hidden = shouldCollapse;
+  elements.searchSummary.hidden = !shouldCollapse;
+  elements.searchCard.classList.toggle('is-collapsed', shouldCollapse);
+  elements.searchToggle.setAttribute('aria-expanded', String(!shouldCollapse));
+  elements.searchToggleLabel.textContent = shouldCollapse ? '조건 수정' : '접기';
+}
+
+function syncMobileSearch() {
+  const showControls = mobileSearch.matches && state.hasResults;
+  elements.searchToggle.hidden = !showControls;
+  elements.headerSearchButton.hidden = !showControls;
+  setSearchCollapsed(showControls);
+}
+
+function scrollToSection(section) {
+  requestAnimationFrame(() => {
+    section.scrollIntoView({
+      behavior: reducedMotion.matches ? 'auto' : 'smooth',
+      block: 'start',
+    });
+  });
+}
 
 function setFormError(message = '') {
   elements.formError.textContent = message;
@@ -264,6 +299,7 @@ async function resolveRegion(query, signal, expectedName) {
   const message = matches.length
     ? '검색 결과가 여러 개예요. 목록에서 시·군·구를 선택해 주세요.'
     : '해당 지역을 찾지 못했어요. 다른 시·군·구 이름을 입력해 주세요.';
+  setSearchCollapsed(false);
   setFormError(message);
   renderSuggestions(matches);
   elements.regionInput.focus();
@@ -271,7 +307,7 @@ async function resolveRegion(query, signal, expectedName) {
   return null;
 }
 
-async function performSearch(expectedName) {
+async function performSearch(expectedName, scrollAfterSearch = false) {
   state.searchController?.abort();
   stopSuggestionRequest();
   hideSuggestions();
@@ -326,6 +362,9 @@ async function performSearch(expectedName) {
     state.resultAssetType = asset;
     state.page = 1;
     state.hasResults = true;
+    elements.searchSummary.textContent =
+      `${region.name} · ${ASSET_NAMES[asset]} · ${deal === 'trade' ? '매매' : '전월세'} · ${formatMonth(month)}`;
+    syncMobileSearch();
     elements.buildingFilter.value = '';
     elements.sortSelect.value = 'latest';
     elements.priceHeading.textContent = deal === 'trade' ? '거래 금액' : '보증금 / 월세';
@@ -334,8 +373,10 @@ async function performSearch(expectedName) {
     renderRows();
     elements.feedback.hidden = true;
     elements.resultsContent.hidden = false;
+    if (scrollAfterSearch && mobileSearch.matches) scrollToSection(elements.resultsSection);
   } catch (error) {
     if (controller.signal.aborted || requestId !== state.requestId) return;
+    setSearchCollapsed(false);
     showFeedback('실거래 내역을 불러오지 못했어요', error.message, true);
   } finally {
     if (requestId === state.requestId) setSearching(false);
@@ -548,15 +589,23 @@ for (const button of elements.dealButtons) {
   button.addEventListener('click', () => setDealType(button.dataset.deal));
 }
 elements.assetSelect.addEventListener('change', updateAssetAvailability);
+elements.searchToggle.addEventListener('click', () => {
+  setSearchCollapsed(!elements.form.hidden);
+});
+elements.headerSearchButton.addEventListener('click', () => {
+  setSearchCollapsed(false);
+  scrollToSection(elements.searchCard);
+});
+mobileSearch.addEventListener('change', syncMobileSearch);
 elements.form.addEventListener('submit', (event) => {
   event.preventDefault();
-  performSearch();
+  performSearch(undefined, true);
 });
 for (const button of elements.quickRegions) {
   button.addEventListener('click', () => {
     elements.regionInput.value = button.dataset.regionQuery;
     state.selectedRegion = null;
-    performSearch(button.dataset.regionName);
+    performSearch(button.dataset.regionName, true);
   });
 }
 elements.buildingFilter.addEventListener('input', () => {
@@ -571,11 +620,13 @@ elements.previousPage.addEventListener('click', () => {
   if (state.page > 1) {
     state.page -= 1;
     renderRows();
+    if (mobileSearch.matches) scrollToSection(elements.listCard);
   }
 });
 elements.nextPage.addEventListener('click', () => {
   state.page += 1;
   renderRows();
+  if (mobileSearch.matches) scrollToSection(elements.listCard);
 });
 
 elements.monthInput.max = currentKoreanMonth();

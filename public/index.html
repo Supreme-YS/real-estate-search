@@ -2,7 +2,7 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#f7f9fc" />
     <meta
       name="description"
@@ -28,6 +28,10 @@
           <span>실거래 <strong>한눈에</strong></span>
         </a>
         <span class="header-caption">호가 말고, 실제 거래</span>
+        <button id="header-search-button" class="header-search-button" type="button" hidden>
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M7 12h10m-7 5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
+          조건 변경
+        </button>
       </div>
     </header>
 
@@ -38,7 +42,7 @@
         <p>관심 있는 지역의 매매·전월세 내역을 한곳에서 간편하게 살펴보세요.</p>
       </section>
 
-      <section class="search-card" aria-labelledby="search-title">
+      <section class="search-card" id="search-card" aria-labelledby="search-title">
         <div class="search-heading">
           <div>
             <h2 id="search-title">거래 조건 검색</h2>
@@ -47,7 +51,12 @@
           <span class="search-heading-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none"><circle cx="10.8" cy="10.8" r="6.3" stroke="currentColor" stroke-width="1.7" /><path d="m15.5 15.5 4.1 4.1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /></svg>
           </span>
+          <button id="search-toggle" class="search-toggle" type="button" aria-controls="search-form" aria-expanded="true" hidden>
+            <span id="search-toggle-label">접기</span>
+            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m5 8 5 5 5-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button>
         </div>
+        <p id="search-summary" class="search-summary" hidden></p>
 
         <form id="search-form" novalidate>
           <div class="search-fields">

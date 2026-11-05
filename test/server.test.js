@@ -27,7 +27,18 @@ test('홈페이지와 정적 파일을 제공한다', async () => {
   }, async (base) => {
     const page = await fetch(base);
     assert.equal(page.status, 200);
-    assert.match(await page.text(), /자연이랑 영석이랑 살 집은 어디일까\?/);
+    const html = await page.text();
+    assert.match(html, /자연이랑 영석이랑 살 집은 어디일까\?/);
+    assert.match(html, /id="area-select"/);
+    assert.match(html, /value="60-85"/);
+    assert.match(html, /id="area-min"/);
+    assert.match(html, /id="area-max"/);
+    assert.match(html, /id="price-min"/);
+    assert.match(html, /id="price-max"/);
+    assert.match(html, /id="share-button"/);
+    assert.match(html, /id="deal-overview"/);
+    assert.match(html, /id="compare-section"/);
+    assert.match(html, /id="insights-section"/);
 
     const script = await fetch(`${base}/app.js`);
     assert.equal(script.status, 200);

@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f7f9fc" />
+    <meta
+      name="description"
+      content="국토교통부 실거래 신고 데이터를 지역·유형·거래년월별로 간편하게 조회하세요."
+    />
+    <title>실거래 한눈에 | 부동산 실거래가 조회</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231b63ae'/%3E%3Cpath d='M15 47V30h11v17m1 0V18h12v29m1 0V25h10v22M12 47h40' stroke='white' stroke-width='4' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="page-width header-inner">
+        <a class="brand" href="/" aria-label="실거래 한눈에, 처음으로">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 36 36" fill="none">
+              <path d="M8 28V16h7v12M15 28V8h8v20m0 0V13h6v15M6 28h24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <span>실거래 <strong>한눈에</strong></span>
+        </a>
+        <span class="header-caption">호가 말고, 실제 거래</span>
+      </div>
+    </header>
+
+    <main class="page-width">
+      <section class="hero" aria-labelledby="page-title">
+        <div class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> 국토교통부 실거래 신고 자료 기반</div>
+        <h1 id="page-title">집값, <span>실제 거래로</span><br class="mobile-break" /> 확인하세요.</h1>
+        <p>관심 있는 지역의 매매·전월세 내역을 한곳에서 간편하게 살펴보세요.</p>
+      </section>
+
+      <section class="search-card" aria-labelledby="search-title">
+        <div class="search-heading">
+          <div>
+            <h2 id="search-title">거래 조건 검색</h2>
+            <p>지역은 시·군·구 단위로 조회할 수 있어요.</p>
+          </div>
+          <span class="search-heading-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="10.8" cy="10.8" r="6.3" stroke="currentColor" stroke-width="1.7" /><path d="m15.5 15.5 4.1 4.1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /></svg>
+          </span>
+        </div>
+
+        <form id="search-form" novalidate>
+          <div class="search-fields">
+            <div class="field region-field" id="region-field">
+              <label for="region-input">지역</label>
+              <div class="input-shell">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M19 10c0 4.5-7 10-7 10S5 14.5 5 10a7 7 0 1 1 14 0Z" stroke="currentColor" stroke-width="1.7" /><circle cx="12" cy="10" r="2.3" stroke="currentColor" stroke-width="1.7" /></svg>
+                <input
+                  id="region-input"
+                  type="text"
+                  name="region"
+                  value="강남구"
+                  placeholder="예: 강남구, 마포구"
+                  autocomplete="off"
+                  spellcheck="false"
+                  maxlength="60"
+                  role="combobox"
+                  aria-autocomplete="list"
+                  aria-controls="region-options"
+                  aria-expanded="false"
+                  required
+                />
+              </div>
+              <div id="region-options" class="region-options" role="listbox" aria-label="지역 검색 결과" hidden></div>
+            </div>
+
+            <div class="field">
+              <label for="asset-select">부동산 유형</label>
+              <div class="select-shell">
+                <select id="asset-select" name="asset">
+                  <option value="apartment">아파트</option>
+                  <option value="officetel">오피스텔</option>
+                  <option value="villa">연립·다세대</option>
+                  <option value="single-house">단독·다가구</option>
+                  <option value="commercial">상업·업무용</option>
+                </select>
+                <svg class="select-arrow" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m5 7.5 5 5 5-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="month-input">거래년월</label>
+              <div class="input-shell month-shell">
+                <input id="month-input" type="month" name="month" min="2000-01" required />
+              </div>
+            </div>
+          </div>
+
+          <div class="search-actions">
+            <div class="deal-group">
+              <span class="deal-label">거래 구분</span>
+              <div class="segmented-control" role="group" aria-label="거래 구분">
+                <button type="button" class="deal-option is-active" data-deal="trade" aria-pressed="true">매매</button>
+                <button type="button" class="deal-option" data-deal="rent" aria-pressed="false">전월세</button>
+              </div>
+              <span id="deal-hint" class="deal-hint" hidden>상업·업무용은 매매만 제공해요.</span>
+            </div>
+            <button type="submit" id="search-button" class="primary-button">
+              <span id="search-button-label">실거래가 조회</span>
+              <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3.5 10h12m-4.5-4.5L15.5 10 11 14.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            </button>
+          </div>
+          <p id="form-error" class="form-error" role="alert" hidden></p>
+        </form>
+      </section>
+
+      <div class="quick-regions" role="group" aria-label="빠른 지역 선택">
+        <span>빠른 지역</span>
+        <button type="button" data-region-query="강남구" data-region-name="서울특별시 강남구">강남구</button>
+        <button type="button" data-region-query="마포구" data-region-name="서울특별시 마포구">마포구</button>
+        <button type="button" data-region-query="송파구" data-region-name="서울특별시 송파구">송파구</button>
+        <button type="button" data-region-query="해운대구" data-region-name="부산광역시 해운대구">해운대구</button>
+      </div>
+
+      <section class="results-section" id="results" aria-labelledby="results-title">
+        <div class="results-heading">
+          <div>
+            <span class="section-kicker">조회 결과</span>
+            <h2 id="results-title">실거래 내역</h2>
+            <p id="results-description">선택한 조건의 거래를 불러오고 있습니다.</p>
+          </div>
+          <span class="source-pill"><span aria-hidden="true"></span> 신고 거래 데이터</span>
+        </div>
+
+        <div id="feedback" class="feedback" role="status">
+          <span class="loading-spinner" aria-hidden="true"></span>
+          <strong>실거래 내역을 불러오고 있어요</strong>
+          <p>국토교통부 신고 자료를 확인하는 중입니다.</p>
+        </div>
+
+        <div id="results-content" hidden>
+          <div id="stats-grid" class="stats-grid" aria-label="실거래가 요약"></div>
+
+          <div class="list-card">
+            <div class="list-header">
+              <div>
+                <h3>거래 상세</h3>
+                <p id="list-count">조회 결과를 확인하세요.</p>
+              </div>
+              <div class="list-controls">
+                <div class="list-search">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.3" stroke="currentColor" stroke-width="1.7" /><path d="m15.5 15.5 4.1 4.1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /></svg>
+                  <input id="building-filter" type="search" placeholder="건물명·동 검색" aria-label="조회된 거래에서 건물명 또는 동 검색" />
+                </div>
+                <div class="list-sort">
+                  <select id="sort-select" aria-label="거래 정렬">
+                    <option value="latest">최근 거래순</option>
+                    <option value="price-desc">높은 금액순</option>
+                    <option value="price-asc">낮은 금액순</option>
+                  </select>
+                  <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m5 7.5 5 5 5-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                </div>
+              </div>
+            </div>
+
+            <div id="limit-notice" class="limit-notice" hidden></div>
+
+            <div id="table-wrap" class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">건물 / 위치</th>
+                    <th scope="col">면적</th>
+                    <th scope="col">층</th>
+                    <th scope="col" id="price-heading">거래 금액</th>
+                    <th scope="col">계약일</th>
+                  </tr>
+                </thead>
+                <tbody id="transaction-rows"></tbody>
+              </table>
+            </div>
+            <div id="empty-state" class="empty-state" hidden></div>
+            <div id="pagination" class="pagination" hidden>
+              <span id="page-summary"></span>
+              <div class="page-actions">
+                <button type="button" id="previous-page" aria-label="이전 페이지">이전</button>
+                <span id="page-number" aria-live="polite"></span>
+                <button type="button" id="next-page" aria-label="다음 페이지">다음</button>
+              </div>
+            </div>
+          </div>
+
+          <p class="results-footnote">통계와 건물명 검색은 불러온 거래를 기준으로 합니다. 본 자료는 참고용이며, 신고·정정 시 내용이 달라질 수 있어요.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="page-width footer-inner">
+        <span>데이터 출처 · 국토교통부 실거래가 신고 자료 (k-skill proxy 경유)</span>
+        <a href="https://rt.molit.go.kr/" target="_blank" rel="noopener noreferrer">
+          공식 실거래가 자료 확인 <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </footer>
+  </body>
+</html>

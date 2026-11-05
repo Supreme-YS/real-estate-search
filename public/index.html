@@ -49,7 +49,7 @@
         <div class="search-heading">
           <div>
             <h2 id="search-title">우리 동네 찾기</h2>
-            <p>동네와 거래 조건, 원하는 면적을 골라보세요.</p>
+            <p>동네와 면적, 예산에 맞는 거래를 골라보세요.</p>
           </div>
           <span class="search-heading-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none"><circle cx="10.8" cy="10.8" r="6.3" stroke="currentColor" stroke-width="1.7" /><path d="m15.5 15.5 4.1 4.1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /></svg>
@@ -143,6 +143,30 @@
             <p id="area-custom-tip" class="area-custom-tip">한쪽만 입력해도 검색할 수 있어요.</p>
           </div>
 
+          <div class="budget-filter" role="group" aria-labelledby="budget-label">
+            <div class="budget-copy">
+              <span id="budget-label" class="budget-title">가격대</span>
+              <span id="budget-hint" class="budget-hint">매매 금액 기준 · 억 원 (비워두면 전체)</span>
+            </div>
+            <div class="budget-controls">
+              <div class="field">
+                <label for="price-min">최소</label>
+                <div class="input-shell budget-input-shell">
+                  <input id="price-min" type="number" min="0" step="any" inputmode="decimal" placeholder="예: 5" aria-describedby="budget-hint" />
+                  <span aria-hidden="true">억</span>
+                </div>
+              </div>
+              <span class="budget-range-separator" aria-hidden="true">~</span>
+              <div class="field">
+                <label for="price-max">최대</label>
+                <div class="input-shell budget-input-shell">
+                  <input id="price-max" type="number" min="0" step="any" inputmode="decimal" placeholder="예: 15" aria-describedby="budget-hint" />
+                  <span aria-hidden="true">억</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="search-actions">
             <div class="deal-group">
               <span class="deal-label">거래 구분</span>
@@ -176,7 +200,23 @@
             <h2 id="results-title">동네의 실거래가</h2>
             <p id="results-description">선택한 조건의 거래를 불러오고 있습니다.</p>
           </div>
-          <span class="source-pill"><span aria-hidden="true"></span> 실제 신고된 거래</span>
+          <div id="result-tools" class="result-tools" hidden>
+            <div class="unit-toggle" role="group" aria-label="면적 표시 단위">
+              <button type="button" class="unit-option is-active" data-unit="m2" aria-pressed="true">㎡</button>
+              <button type="button" class="unit-option" data-unit="pyeong" aria-pressed="false">평</button>
+            </div>
+            <button type="button" id="share-button" class="share-button" aria-expanded="false" aria-controls="share-panel">조건 공유</button>
+            <span class="source-pill"><span aria-hidden="true"></span> 실제 신고된 거래</span>
+          </div>
+        </div>
+
+        <div id="share-panel" class="share-panel" hidden>
+          <label for="share-url">지금 검색 조건이 담긴 링크</label>
+          <div class="share-link-row">
+            <input id="share-url" type="url" readonly aria-label="검색 조건 공유 링크" />
+            <button id="copy-link" type="button">링크 복사</button>
+          </div>
+          <p id="share-status" role="status">복사해서 친구에게 보내보세요.</p>
         </div>
 
         <div id="feedback" class="feedback" role="status">
@@ -187,6 +227,17 @@
 
         <div id="results-content" hidden>
           <div id="stats-grid" class="stats-grid" aria-label="실거래가 요약"></div>
+
+          <section id="deal-overview" class="deal-overview" aria-labelledby="deal-overview-title" hidden>
+            <div class="overview-heading">
+              <div>
+                <h3 id="deal-overview-title">매매 · 전월세 같이 보기</h3>
+                <p>같은 지역·거래년월·면적을 비교해요. 가격대 필터는 제외하고 각각의 중위 금액을 보여줘요.</p>
+              </div>
+              <button id="deal-overview-button" type="button" class="share-button" aria-controls="deal-overview-content" aria-expanded="false">나란히 보기</button>
+            </div>
+            <div id="deal-overview-content" class="deal-overview-content" role="status" hidden></div>
+          </section>
 
           <div class="list-card">
             <div class="list-header">
@@ -210,6 +261,10 @@
               </div>
             </div>
 
+            <div id="compare-toolbar" class="compare-toolbar" hidden>
+              <span id="compare-hint"></span>
+              <button id="compare-jump" type="button" hidden>선택한 거래 비교 보기 ↓</button>
+            </div>
             <div id="limit-notice" class="limit-notice" hidden></div>
 
             <div id="table-wrap" class="table-wrap">
@@ -217,10 +272,11 @@
                 <thead>
                   <tr>
                     <th scope="col">건물 / 위치</th>
-                    <th scope="col">면적</th>
+                    <th scope="col" id="area-heading">면적 (㎡)</th>
                     <th scope="col">층</th>
                     <th scope="col" id="price-heading">거래 금액</th>
                     <th scope="col">계약일</th>
+                    <th scope="col">더 보기</th>
                   </tr>
                 </thead>
                 <tbody id="transaction-rows"></tbody>
@@ -237,7 +293,43 @@
             </div>
           </div>
 
-          <p class="results-footnote">면적 조건과 통계는 불러온 거래(최대 1,000건)를 기준으로 합니다. 면적이 없는 거래는 범위 선택 시 제외돼요. 본 자료는 참고용이며 신고·정정 시 달라질 수 있어요.</p>
+          <section id="compare-section" class="compare-section" aria-labelledby="compare-title" hidden>
+            <div class="panel-heading">
+              <div>
+                <span class="section-kicker">둘러본 집 나란히</span>
+                <h3 id="compare-title">선택한 거래 비교</h3>
+              </div>
+              <button id="compare-clear" type="button" class="text-button">비교 비우기</button>
+            </div>
+            <p class="panel-note">같은 아파트의 다른 층·가격도 각각 비교할 수 있어요. 가격은 선택한 거래일의 신고 금액입니다.</p>
+            <div id="compare-grid" class="compare-grid"></div>
+          </section>
+
+          <section id="insights-section" class="insights-section" aria-labelledby="insights-title" hidden>
+            <div class="panel-heading">
+              <div>
+                <span class="section-kicker">단지 거래 더 살펴보기</span>
+                <h3 id="insights-title">가격 추이 · 매매/전월세</h3>
+                <p id="insights-subtitle" class="panel-note"></p>
+              </div>
+              <button id="insights-close" type="button" class="text-button">닫기 ✕</button>
+            </div>
+            <div class="insights-grid">
+              <div class="insight-card">
+                <h4>최근 6개월 거래 추이</h4>
+                <p id="trend-caption">선택한 거래 유형의 월별 중위 금액</p>
+                <div id="trend-content" class="insight-content" role="status"></div>
+              </div>
+              <div class="insight-card">
+                <h4>매매 · 전월세 나란히</h4>
+                <p>선택한 거래년월의 같은 단지·유사 면적</p>
+                <div id="deal-pair-content" class="insight-content" role="status"></div>
+              </div>
+            </div>
+            <p class="insights-footnote">동일 단지명·동, 면적 ±1㎡ 거래를 묶은 참고 자료예요. 상세 비교에는 검색창의 가격·면적 필터가 적용되지 않습니다. 거래가 없거나 최대 조회 건수(월별 1,000건)에 걸리면 실제 거래 전체를 나타내지 않을 수 있어요.</p>
+          </section>
+
+          <p class="results-footnote">가격·면적 필터와 통계는 불러온 거래(최대 1,000건)를 기준으로 합니다. 면적이 없는 거래는 면적 범위 선택 시 제외돼요. 매매 평당가는 거래금액을 표시 면적(평)으로 나눈 참고값이며 신고·정정 시 달라질 수 있어요.</p>
         </div>
       </section>
     </main>

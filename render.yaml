@@ -1,0 +1,15 @@
+# 이 프로젝트 디렉터리의 파일만 GitHub 저장소 루트에 올리세요.
+services:
+  - type: web
+    name: real-estate-search
+    runtime: node
+    region: singapore
+    plan: free
+    buildCommand: npm install --no-audit --no-fund && npm test
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: NODE_ENV
+        value: production

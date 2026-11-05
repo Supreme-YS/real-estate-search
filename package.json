@@ -1,0 +1,15 @@
+{
+  "name": "real-estate-search",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "국토교통부 실거래가 조회 웹사이트",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -49,7 +49,7 @@
         <div class="search-heading">
           <div>
             <h2 id="search-title">우리 동네 찾기</h2>
-            <p>동네(시·군·구)와 거래 조건을 골라보세요.</p>
+            <p>동네와 거래 조건, 원하는 면적을 골라보세요.</p>
           </div>
           <span class="search-heading-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none"><circle cx="10.8" cy="10.8" r="6.3" stroke="currentColor" stroke-width="1.7" /><path d="m15.5 15.5 4.1 4.1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /></svg>
@@ -106,6 +106,41 @@
                 <input id="month-input" type="month" name="month" min="2000-01" required />
               </div>
             </div>
+
+            <div class="field area-field">
+              <label for="area-select">면적 <span class="field-unit">㎡</span></label>
+              <div class="select-shell">
+                <select id="area-select" name="area">
+                  <option value="all">전체 면적</option>
+                  <option value="under-40">40㎡ 미만</option>
+                  <option value="40-60">40~60㎡</option>
+                  <option value="60-85">60~85㎡</option>
+                  <option value="85-135">85~135㎡</option>
+                  <option value="over-135">135㎡ 이상</option>
+                  <option value="custom">직접 입력</option>
+                </select>
+                <svg class="select-arrow" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m5 7.5 5 5 5-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </div>
+            </div>
+          </div>
+
+          <div id="custom-area-fields" class="custom-area-fields" role="group" aria-label="면적 직접 입력" hidden>
+            <div class="field">
+              <label for="area-min">최소 면적</label>
+              <div class="input-shell area-input-shell">
+                <input id="area-min" type="number" inputmode="decimal" min="0" step="any" placeholder="예: 59" aria-describedby="area-custom-tip" />
+                <span aria-hidden="true">㎡</span>
+              </div>
+            </div>
+            <span class="area-range-separator" aria-hidden="true">~</span>
+            <div class="field">
+              <label for="area-max">최대 면적</label>
+              <div class="input-shell area-input-shell">
+                <input id="area-max" type="number" inputmode="decimal" min="0" step="any" placeholder="예: 85" aria-describedby="area-custom-tip" />
+                <span aria-hidden="true">㎡</span>
+              </div>
+            </div>
+            <p id="area-custom-tip" class="area-custom-tip">한쪽만 입력해도 검색할 수 있어요.</p>
           </div>
 
           <div class="search-actions">
@@ -202,7 +237,7 @@
             </div>
           </div>
 
-          <p class="results-footnote">통계와 건물명 검색은 불러온 거래를 기준으로 합니다. 본 자료는 참고용이며, 신고·정정 시 내용이 달라질 수 있어요.</p>
+          <p class="results-footnote">면적 조건과 통계는 불러온 거래(최대 1,000건)를 기준으로 합니다. 면적이 없는 거래는 범위 선택 시 제외돼요. 본 자료는 참고용이며 신고·정정 시 달라질 수 있어요.</p>
         </div>
       </section>
     </main>

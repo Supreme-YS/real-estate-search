@@ -1,11 +1,14 @@
 import {
   currentKoreanMonth,
+  filterByArea,
   formatArea,
   formatDate,
   formatKrw10k,
   formatMonth,
   formatNumber,
+  getAreaFilter,
   previousKoreanMonth,
+  summarizeTransactions,
 } from './utils.js';
 
 const PAGE_SIZE = 12;
@@ -29,6 +32,10 @@ const elements = {
   regionOptions: document.querySelector('#region-options'),
   assetSelect: document.querySelector('#asset-select'),
   monthInput: document.querySelector('#month-input'),
+  areaSelect: document.querySelector('#area-select'),
+  customAreaFields: document.querySelector('#custom-area-fields'),
+  areaMin: document.querySelector('#area-min'),
+  areaMax: document.querySelector('#area-max'),
   dealButtons: [...document.querySelectorAll('.deal-option')],
   dealHint: document.querySelector('#deal-hint'),
   searchButton: document.querySelector('#search-button'),
@@ -67,6 +74,8 @@ const state = {
   searchController: null,
   requestId: 0,
   items: [],
+  areaItems: [],
+  areaFilter: null,
   summary: {},
   resultDealType: 'trade',
   resultAssetType: 'apartment',
@@ -243,6 +252,10 @@ function updateAssetAvailability() {
   if (commercial) setDealType('trade');
 }
 
+function updateAreaInputs() {
+  elements.customAreaFields.hidden = elements.areaSelect.value !== 'custom';
+}
+
 function showLoading() {
   elements.resultsContent.hidden = true;
   elements.feedback.hidden = false;
@@ -331,6 +344,27 @@ async function performSearch(expectedName, scrollAfterSearch = false) {
     return;
   }
 
+  let areaFilter;
+  try {
+    if (elements.areaSelect.value === 'custom'
+        && (elements.areaMin.validity.badInput || elements.areaMax.validity.badInput)) {
+      throw new RangeError('면적을 숫자로 입력해 주세요.');
+    }
+    areaFilter = getAreaFilter(
+      elements.areaSelect.value,
+      elements.areaMin.value,
+      elements.areaMax.value,
+    );
+  } catch (error) {
+    setFormError(error.message);
+    if (elements.areaSelect.value === 'custom') {
+      (elements.areaMin.value ? elements.areaMax : elements.areaMin).focus();
+    } else {
+      elements.areaSelect.focus();
+    }
+    return;
+  }
+
   setSearching(true);
   try {
     const region = await resolveRegion(query, controller.signal, expectedName);
@@ -339,8 +373,14 @@ async function performSearch(expectedName, scrollAfterSearch = false) {
     const asset = elements.assetSelect.value;
     const deal = state.dealType;
     const month = monthValue.replace('-', '');
+    const description = [
+      ASSET_NAMES[asset],
+      deal === 'trade' ? '매매' : '전월세',
+      formatMonth(month),
+      areaFilter?.label,
+    ].filter(Boolean).join(' · ');
     elements.resultsTitle.textContent = `${region.name}의 실거래가`;
-    elements.resultsDescription.textContent = `${ASSET_NAMES[asset]} · ${deal === 'trade' ? '매매' : '전월세'} · ${formatMonth(month)}`;
+    elements.resultsDescription.textContent = description;
     showLoading();
 
     const params = new URLSearchParams({
@@ -357,13 +397,14 @@ async function performSearch(expectedName, scrollAfterSearch = false) {
     if (controller.signal.aborted || requestId !== state.requestId) return;
 
     state.items = data.items;
+    state.areaFilter = areaFilter;
+    state.areaItems = filterByArea(state.items, areaFilter);
     state.summary = data.summary && typeof data.summary === 'object' ? data.summary : {};
     state.resultDealType = deal;
     state.resultAssetType = asset;
     state.page = 1;
     state.hasResults = true;
-    elements.searchSummary.textContent =
-      `${region.name} · ${ASSET_NAMES[asset]} · ${deal === 'trade' ? '매매' : '전월세'} · ${formatMonth(month)}`;
+    elements.searchSummary.textContent = `${region.name} · ${description}`;
     syncMobileSearch();
     elements.buildingFilter.value = '';
     elements.sortSelect.value = 'latest';
@@ -400,19 +441,25 @@ function addStat(label, value, detail) {
 }
 
 function renderStats() {
-  const summary = state.summary;
+  const summary = state.areaFilter
+    ? summarizeTransactions(state.areaItems, state.resultDealType)
+    : state.summary;
   elements.statsGrid.replaceChildren();
-  addStat('조회된 거래', `${formatNumber(state.items.length)}건`, '취소 거래 제외 · 조회 목록 기준');
+  addStat(
+    state.areaFilter ? '선택한 면적' : '조회된 거래',
+    `${formatNumber(state.areaItems.length)}건`,
+    '취소 거래 제외 · 조회 목록 기준',
+  );
 
   if (state.resultDealType === 'trade') {
-    addStat('중위 거래금액', formatKrw10k(summary.median_price_10k), '조회된 거래의 중간 가격');
-    addStat('최저 거래금액', formatKrw10k(summary.min_price_10k), '조회된 거래 기준');
-    addStat('최고 거래금액', formatKrw10k(summary.max_price_10k), '조회된 거래 기준');
+    addStat('중위 거래금액', formatKrw10k(summary.median_price_10k), '선택한 조건의 중간 가격');
+    addStat('최저 거래금액', formatKrw10k(summary.min_price_10k), '선택한 조건 기준');
+    addStat('최고 거래금액', formatKrw10k(summary.max_price_10k), '선택한 조건 기준');
   } else {
     addStat('중위 보증금', formatKrw10k(summary.median_deposit_10k),
       `최저 ${formatKrw10k(summary.min_deposit_10k)}`);
-    addStat('평균 월세', formatKrw10k(summary.monthly_rent_avg_10k), '조회된 거래 전체 기준');
-    addStat('최고 보증금', formatKrw10k(summary.max_deposit_10k), '조회된 거래 기준');
+    addStat('평균 월세', formatKrw10k(summary.monthly_rent_avg_10k), '선택한 조건 기준');
+    addStat('최고 보증금', formatKrw10k(summary.max_deposit_10k), '선택한 조건 기준');
   }
 
   elements.limitNotice.hidden = state.items.length < 1000;
@@ -494,24 +541,30 @@ function renderTransaction(item) {
   return row;
 }
 
-function renderEmpty(filteredOut) {
+function renderEmpty() {
   elements.emptyState.replaceChildren();
   const symbol = document.createElement('span');
   symbol.className = 'empty-symbol';
   symbol.setAttribute('aria-hidden', 'true');
   symbol.textContent = '⌕';
   const title = document.createElement('strong');
-  title.textContent = filteredOut ? '검색 결과가 없어요' : '이 기간에는 거래 내역이 없어요';
   const detail = document.createElement('span');
-  detail.textContent = filteredOut
-    ? '다른 건물명이나 동 이름으로 검색해 보세요.'
-    : '지역이나 거래년월을 바꿔 다시 조회해 보세요.';
+  if (!state.items.length) {
+    title.textContent = '이 기간에는 거래 내역이 없어요';
+    detail.textContent = '지역이나 거래년월을 바꿔 다시 조회해 보세요.';
+  } else if (!state.areaItems.length) {
+    title.textContent = '해당 면적의 거래가 없어요';
+    detail.textContent = '면적 범위를 넓히거나 다른 거래년월을 선택해 보세요.';
+  } else {
+    title.textContent = '검색 결과가 없어요';
+    detail.textContent = '다른 건물명이나 동 이름으로 검색해 보세요.';
+  }
   elements.emptyState.append(symbol, title, detail);
 }
 
 function renderRows() {
   const filter = elements.buildingFilter.value.trim().toLocaleLowerCase('ko');
-  const matches = state.items.filter((item) =>
+  const matches = state.areaItems.filter((item) =>
     `${buildingTitle(item)} ${item.district ?? ''} ${item.buildingUse ?? ''}`
       .toLocaleLowerCase('ko').includes(filter));
   const sort = elements.sortSelect.value;
@@ -537,13 +590,17 @@ function renderRows() {
   for (const item of visible) fragment.append(renderTransaction(item));
   elements.rows.replaceChildren(fragment);
 
+  const sourceCount = formatNumber(state.items.length);
+  const areaCount = formatNumber(state.areaItems.length);
   elements.listCount.textContent = filter
-    ? `조회된 ${formatNumber(state.items.length)}건 중 검색 결과 ${formatNumber(matches.length)}건`
-    : `조회된 거래 ${formatNumber(state.items.length)}건`;
+    ? `${state.areaFilter ? `면적 조건 ${areaCount}건` : `조회된 ${sourceCount}건`} 중 검색 결과 ${formatNumber(matches.length)}건`
+    : state.areaFilter
+      ? `조회된 ${sourceCount}건 중 면적 조건 ${areaCount}건`
+      : `조회된 거래 ${sourceCount}건`;
 
   elements.tableWrap.hidden = matches.length === 0;
   elements.emptyState.hidden = matches.length !== 0;
-  if (!matches.length) renderEmpty(Boolean(filter && state.items.length));
+  if (!matches.length) renderEmpty();
 
   elements.pagination.hidden = pageCount <= 1;
   if (pageCount > 1) {
@@ -589,6 +646,7 @@ for (const button of elements.dealButtons) {
   button.addEventListener('click', () => setDealType(button.dataset.deal));
 }
 elements.assetSelect.addEventListener('change', updateAssetAvailability);
+elements.areaSelect.addEventListener('change', updateAreaInputs);
 elements.searchToggle.addEventListener('click', () => {
   setSearchCollapsed(!elements.form.hidden);
 });
@@ -632,4 +690,5 @@ elements.nextPage.addEventListener('click', () => {
 elements.monthInput.max = currentKoreanMonth();
 elements.monthInput.value = previousKoreanMonth();
 updateAssetAvailability();
+updateAreaInputs();
 performSearch();

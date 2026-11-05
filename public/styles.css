@@ -243,8 +243,8 @@ button:disabled {
 
 .search-fields {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr) minmax(0, 0.9fr);
-  gap: 16px;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.1fr) minmax(0, 0.95fr) minmax(0, 1fr);
+  gap: 14px;
 }
 
 .field {
@@ -259,6 +259,12 @@ button:disabled {
   color: #475f4a;
   font-size: 13px;
   font-weight: 700;
+}
+
+.field-unit {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
 }
 
 .input-shell,
@@ -343,6 +349,43 @@ button:disabled {
 
 .month-shell input::-webkit-calendar-picker-indicator {
   cursor: pointer;
+}
+
+.custom-area-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: end;
+  gap: 0 11px;
+  width: min(100%, 460px);
+  margin-top: 14px;
+  padding: 14px 16px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #f7faf5;
+}
+
+.area-input-shell input {
+  padding-right: 5px;
+}
+
+.area-input-shell span {
+  padding-right: 14px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.area-range-separator {
+  display: grid;
+  height: 48px;
+  place-items: center;
+  color: var(--muted);
+}
+
+.area-custom-tip {
+  grid-column: 1 / -1;
+  margin: 9px 0 0;
+  color: var(--muted);
+  font-size: 12px;
 }
 
 .region-options {
@@ -920,6 +963,10 @@ tbody tr:hover {
     grid-column: 1 / -1;
   }
 
+  .area-field {
+    grid-column: 1 / -1;
+  }
+
   .stats-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1080,6 +1127,20 @@ tbody tr:hover {
 
   .month-shell input {
     padding: 0 5px 0 10px;
+  }
+
+  .custom-area-fields {
+    width: 100%;
+    margin-top: 13px;
+    padding: 12px;
+  }
+
+  .area-input-shell input {
+    padding-right: 4px;
+  }
+
+  .area-input-shell span {
+    padding-right: 11px;
   }
 
   .region-options {
@@ -1461,6 +1522,10 @@ tbody tr:hover {
   }
 
   .region-field {
+    grid-column: auto;
+  }
+
+  .area-field {
     grid-column: auto;
   }
 }

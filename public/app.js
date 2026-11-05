@@ -109,7 +109,7 @@ function setFormError(message = '') {
 
 function setSearching(searching) {
   elements.searchButton.disabled = searching;
-  elements.searchButtonLabel.textContent = searching ? '조회 중...' : '실거래가 조회';
+  elements.searchButtonLabel.textContent = searching ? '찾아보는 중...' : '실거래 살펴보기';
 }
 
 function hideSuggestions() {
@@ -254,7 +254,7 @@ function showLoading() {
   const title = document.createElement('strong');
   title.textContent = '실거래 내역을 불러오고 있어요';
   const detail = document.createElement('p');
-  detail.textContent = '국토교통부 신고 자료를 확인하는 중입니다.';
+  detail.textContent = '동네의 거래 내역을 확인하고 있어요.';
   elements.feedback.append(spinner, title, detail);
 }
 
@@ -339,7 +339,7 @@ async function performSearch(expectedName, scrollAfterSearch = false) {
     const asset = elements.assetSelect.value;
     const deal = state.dealType;
     const month = monthValue.replace('-', '');
-    elements.resultsTitle.textContent = `${region.name} 실거래가`;
+    elements.resultsTitle.textContent = `${region.name}의 실거래가`;
     elements.resultsDescription.textContent = `${ASSET_NAMES[asset]} · ${deal === 'trade' ? '매매' : '전월세'} · ${formatMonth(month)}`;
     showLoading();
 

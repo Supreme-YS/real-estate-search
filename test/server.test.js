@@ -27,7 +27,7 @@ test('홈페이지와 정적 파일을 제공한다', async () => {
   }, async (base) => {
     const page = await fetch(base);
     assert.equal(page.status, 200);
-    assert.match(await page.text(), /실거래 한눈에/);
+    assert.match(await page.text(), /자연이랑 영석이랑 살 집은 어디일까\?/);
 
     const script = await fetch(`${base}/app.js`);
     assert.equal(script.status, 200);

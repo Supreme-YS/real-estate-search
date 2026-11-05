@@ -3,15 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#f7f9fc" />
+    <meta name="theme-color" content="#f7f9f4" />
     <meta
       name="description"
-      content="국토교통부 실거래 신고 데이터를 지역·유형·거래년월별로 간편하게 조회하세요."
+      content="자연이랑 영석이랑 살 집은 어디일까? 마음에 드는 동네의 실제 거래 내역을 함께 살펴봐요."
     />
-    <title>실거래 한눈에 | 부동산 실거래가 조회</title>
+    <meta property="og:title" content="자연이랑 영석이랑 살 집은 어디일까?" />
+    <meta property="og:description" content="마음에 드는 동네의 실제 거래 내역을 함께 살펴봐요." />
+    <title>자연이랑 영석이랑 살 집은 어디일까?</title>
     <link
       rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231b63ae'/%3E%3Cpath d='M15 47V30h11v17m1 0V18h12v29m1 0V25h10v22M12 47h40' stroke='white' stroke-width='4' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%235a7e61'/%3E%3Cpath d='M11 30 32 14l21 16v22H11V30Z' fill='none' stroke='white' stroke-width='4' stroke-linejoin='round'/%3E%3Cpath d='M27 52V37h10v15' fill='none' stroke='white' stroke-width='4' stroke-linejoin='round'/%3E%3C/svg%3E"
     />
     <link rel="stylesheet" href="/styles.css" />
     <script type="module" src="/app.js"></script>
@@ -19,15 +21,16 @@
   <body>
     <header class="site-header">
       <div class="page-width header-inner">
-        <a class="brand" href="/" aria-label="실거래 한눈에, 처음으로">
+        <a class="brand" href="/" aria-label="자연이랑 영석이랑 살 집은 어디일까? 홈으로 이동">
           <span class="brand-mark" aria-hidden="true">
             <svg viewBox="0 0 36 36" fill="none">
-              <path d="M8 28V16h7v12M15 28V8h8v20m0 0V13h6v15M6 28h24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M5.5 17 18 7l12.5 10v12h-25V17Z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" />
+              <path d="M15 29v-8h6v8" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" />
             </svg>
           </span>
-          <span>실거래 <strong>한눈에</strong></span>
+          <span class="brand-name">자연이랑 영석이랑<span class="brand-ending"> <strong>살 집은 어디일까?</strong></span></span>
         </a>
-        <span class="header-caption">호가 말고, 실제 거래</span>
+        <span class="header-caption">우리 둘의 집 찾기</span>
         <button id="header-search-button" class="header-search-button" type="button" hidden>
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M7 12h10m-7 5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
           조건 변경
@@ -37,16 +40,16 @@
 
     <main class="page-width">
       <section class="hero" aria-labelledby="page-title">
-        <div class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> 국토교통부 실거래 신고 자료 기반</div>
-        <h1 id="page-title">집값, <span>실제 거래로</span><br class="mobile-break" /> 확인하세요.</h1>
-        <p>관심 있는 지역의 매매·전월세 내역을 한곳에서 간편하게 살펴보세요.</p>
+        <div class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> 우리의 다음 집을 찾는 시간</div>
+        <h1 id="page-title">자연이랑 영석이랑<br class="mobile-break" /> <span>살 집은 어디일까?</span></h1>
+        <p>우리에게 꼭 맞는 집, 동네의 실제 거래부터 함께 살펴봐요.</p>
       </section>
 
       <section class="search-card" id="search-card" aria-labelledby="search-title">
         <div class="search-heading">
           <div>
-            <h2 id="search-title">거래 조건 검색</h2>
-            <p>지역은 시·군·구 단위로 조회할 수 있어요.</p>
+            <h2 id="search-title">우리 동네 찾기</h2>
+            <p>동네(시·군·구)와 거래 조건을 골라보세요.</p>
           </div>
           <span class="search-heading-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none"><circle cx="10.8" cy="10.8" r="6.3" stroke="currentColor" stroke-width="1.7" /><path d="m15.5 15.5 4.1 4.1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /></svg>
@@ -115,7 +118,7 @@
               <span id="deal-hint" class="deal-hint" hidden>상업·업무용은 매매만 제공해요.</span>
             </div>
             <button type="submit" id="search-button" class="primary-button">
-              <span id="search-button-label">실거래가 조회</span>
+              <span id="search-button-label">실거래 살펴보기</span>
               <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3.5 10h12m-4.5-4.5L15.5 10 11 14.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
             </button>
           </div>
@@ -124,7 +127,7 @@
       </section>
 
       <div class="quick-regions" role="group" aria-label="빠른 지역 선택">
-        <span>빠른 지역</span>
+        <span>바로 보기</span>
         <button type="button" data-region-query="강남구" data-region-name="서울특별시 강남구">강남구</button>
         <button type="button" data-region-query="마포구" data-region-name="서울특별시 마포구">마포구</button>
         <button type="button" data-region-query="송파구" data-region-name="서울특별시 송파구">송파구</button>
@@ -134,17 +137,17 @@
       <section class="results-section" id="results" aria-labelledby="results-title">
         <div class="results-heading">
           <div>
-            <span class="section-kicker">조회 결과</span>
-            <h2 id="results-title">실거래 내역</h2>
+            <span class="section-kicker">우리 동네 실거래</span>
+            <h2 id="results-title">동네의 실거래가</h2>
             <p id="results-description">선택한 조건의 거래를 불러오고 있습니다.</p>
           </div>
-          <span class="source-pill"><span aria-hidden="true"></span> 신고 거래 데이터</span>
+          <span class="source-pill"><span aria-hidden="true"></span> 실제 신고된 거래</span>
         </div>
 
         <div id="feedback" class="feedback" role="status">
           <span class="loading-spinner" aria-hidden="true"></span>
           <strong>실거래 내역을 불러오고 있어요</strong>
-          <p>국토교통부 신고 자료를 확인하는 중입니다.</p>
+          <p>동네의 거래 내역을 확인하고 있어요.</p>
         </div>
 
         <div id="results-content" hidden>
@@ -153,7 +156,7 @@
           <div class="list-card">
             <div class="list-header">
               <div>
-                <h3>거래 상세</h3>
+                <h3>거래 내역</h3>
                 <p id="list-count">조회 결과를 확인하세요.</p>
               </div>
               <div class="list-controls">

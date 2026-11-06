@@ -117,3 +117,23 @@ test('상위 서비스 장애를 명확한 오류로 반환한다', async () => 
     assert.match((await response.json()).error, /일시적으로/);
   });
 });
+
+test('상위 서비스 요청량 제한을 429로 안내한다', async () => {
+  await withServer(async () => jsonResponse({ error: 'hidden' }, 429), async (base) => {
+    const response = await fetch(`${base}/api/regions?q=%EA%B0%95%EB%82%A8%EA%B5%AC`);
+    assert.equal(response.status, 429);
+    assert.match((await response.json()).error, /요청이 많습니다/);
+  });
+});
+
+test('상위 서비스 시간 초과를 504로 안내한다', async () => {
+  await withServer(async () => {
+    const error = new Error('timeout');
+    error.name = 'TimeoutError';
+    throw error;
+  }, async (base) => {
+    const response = await fetch(`${base}/api/regions?q=%EA%B0%95%EB%82%A8%EA%B5%AC`);
+    assert.equal(response.status, 504);
+    assert.match((await response.json()).error, /시간이 초과/);
+  });
+});

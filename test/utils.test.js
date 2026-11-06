@@ -43,6 +43,27 @@ test('날짜와 면적을 읽기 쉬운 형식으로 표시한다', () => {
   assert.equal(formatArea(null), '-');
 });
 
+test('구형 브라우저에서 최신 문자열·배열 메서드가 없어도 날짜와 통계를 계산한다', () => {
+  const originalAt = Array.prototype.at;
+  const originalReplaceAll = String.prototype.replaceAll;
+  let formattedDate;
+  let tradeSummary;
+  let rentSummary;
+  try {
+    Array.prototype.at = undefined;
+    String.prototype.replaceAll = undefined;
+    formattedDate = formatDate('2026-09-30');
+    tradeSummary = summarizeTransactions([{ price_10k: 10000 }, { price_10k: 20000 }], 'trade');
+    rentSummary = summarizeTransactions([{ deposit_10k: 0 }, { deposit_10k: 30000 }], 'rent');
+  } finally {
+    Array.prototype.at = originalAt;
+    String.prototype.replaceAll = originalReplaceAll;
+  }
+  assert.equal(formattedDate, '2026.09.30');
+  assert.equal(tradeSummary.max_price_10k, 20000);
+  assert.equal(rentSummary.max_deposit_10k, 30000);
+});
+
 test('면적 구간은 경계값을 중복 없이 나누고 면적 미제공 거래를 제외한다', () => {
   const items = [
     { area_m2: 39.99 }, { area_m2: 40 }, { area_m2: 60 },

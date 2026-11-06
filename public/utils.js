@@ -42,6 +42,19 @@ export function formatPricePerPyeong(price10k, areaM2) {
     ? `${formatKrw10k(Math.round(price / (area * 0.3025)))}/평` : '-';
 }
 
+export function createMapSearchUrl(regionName, transaction) {
+  const region = typeof regionName === 'string' ? regionName.trim() : '';
+  const district = typeof transaction?.district === 'string'
+    ? transaction.district.trim() : '';
+  const name = typeof transaction?.name === 'string' ? transaction.name.trim() : '';
+  if (!district && !name) return null;
+
+  // 실거래 자료의 "(4단지)" 같은 끝 설명은 지도에 등록된 장소명과 다를 수 있다.
+  const placeName = name.replace(/(?:\s*[(（][^()（）]+[)）])+\s*$/, '').trim() || name;
+  const query = [region, district, placeName].filter(Boolean).join(' ');
+  return `https://map.kakao.com/link/search/${encodeURIComponent(query)}`;
+}
+
 const AREA_PRESETS = {
   'under-40': { min: null, max: 40, label: '40㎡ 미만' },
   '40-60': { min: 40, max: 60, label: '40~60㎡' },

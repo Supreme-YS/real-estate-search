@@ -1,4 +1,5 @@
 import {
+  createMapSearchUrl,
   currentKoreanMonth,
   filterByArea,
   filterByPrice,
@@ -58,6 +59,7 @@ const elements = {
   resultsSection: document.querySelector('#results'),
   resultsDescription: document.querySelector('#results-description'),
   resultTools: document.querySelector('#result-tools'),
+  statsJump: document.querySelector('#stats-jump'),
   unitButtons: [...document.querySelectorAll('.unit-option')],
   shareButton: document.querySelector('#share-button'),
   sharePanel: document.querySelector('#share-panel'),
@@ -67,6 +69,7 @@ const elements = {
   feedback: document.querySelector('#feedback'),
   resultsContent: document.querySelector('#results-content'),
   statsGrid: document.querySelector('#stats-grid'),
+  resultsFootnote: document.querySelector('.results-footnote'),
   dealOverview: document.querySelector('#deal-overview'),
   dealOverviewButton: document.querySelector('#deal-overview-button'),
   dealOverviewContent: document.querySelector('#deal-overview-content'),
@@ -142,17 +145,31 @@ function setSearchCollapsed(collapsed) {
   elements.searchToggleLabel.textContent = shouldCollapse ? '조건 수정' : '접기';
 }
 
+function syncResultOrder() {
+  const sections = mobileSearch.matches
+    ? [elements.listCard, elements.compareSection, elements.insightsSection,
+      elements.statsGrid, elements.dealOverview, elements.resultsFootnote]
+    : [elements.statsGrid, elements.dealOverview, elements.listCard,
+      elements.compareSection, elements.insightsSection, elements.resultsFootnote];
+  if (elements.resultsContent.firstElementChild !== sections[0]) {
+    elements.resultsContent.append(...sections);
+  }
+}
+
 function syncMobileSearch() {
   const showControls = mobileSearch.matches && state.hasResults;
   elements.searchToggle.hidden = !showControls;
   elements.headerSearchButton.hidden = !showControls;
+  elements.statsJump.hidden = !showControls;
+  document.body.classList.toggle('has-results', showControls);
+  syncResultOrder();
   setSearchCollapsed(showControls);
 }
 
-function scrollToSection(section) {
+function scrollToSection(section, immediate = false) {
   requestAnimationFrame(() => {
     section.scrollIntoView({
-      behavior: reducedMotion.matches ? 'auto' : 'smooth',
+      behavior: immediate || reducedMotion.matches ? 'auto' : 'smooth',
       block: 'start',
     });
   });
@@ -645,6 +662,19 @@ function renderTransaction(item) {
   location.className = 'building-detail';
   location.textContent = details.filter(Boolean).join(' · ');
   building.append(name, location);
+  const mapSearchUrl = createMapSearchUrl(state.resultRegion?.name, item);
+  if (mapSearchUrl) {
+    const mapLink = document.createElement('a');
+    mapLink.className = 'map-link';
+    mapLink.href = mapSearchUrl;
+    mapLink.target = '_blank';
+    mapLink.rel = 'noopener noreferrer';
+    mapLink.textContent = hasBuildingName ? '카카오맵에서 찾기 ↗' : '동네 지도 보기 ↗';
+    const searchName = hasBuildingName ? item.name.trim() : item.district.trim();
+    mapLink.setAttribute('aria-label', `${searchName} 카카오맵 검색 결과 보기 (새 창)`);
+    mapLink.title = '카카오맵 검색 결과가 열려요. 거래 건물의 정확한 위치가 아닐 수 있어요.';
+    building.append(mapLink);
+  }
 
   createCell(row, '면적', formatAreaUnit(item.area_m2, state.unit));
   createCell(row, '층', formatFloor(item.floor));
@@ -1219,6 +1249,7 @@ elements.copyLink.addEventListener('click', async () => {
     elements.shareStatus.textContent = '자동 복사가 어려워요. 선택된 주소를 길게 눌러 복사해 주세요.';
   }
 });
+elements.statsJump.addEventListener('click', () => scrollToSection(elements.statsGrid, true));
 elements.shareUrl.addEventListener('click', () => elements.shareUrl.select());
 elements.dealOverviewButton.addEventListener('click', toggleDealOverview);
 elements.compareJump.addEventListener('click', () => scrollToSection(elements.compareSection));

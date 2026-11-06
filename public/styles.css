@@ -677,6 +677,21 @@ button:disabled {
   gap: 8px;
 }
 
+.stats-jump {
+  min-height: 38px;
+  padding: 0 11px;
+  border: 1px solid #ccdec9;
+  border-radius: 8px;
+  background: var(--sage-soft);
+  color: var(--sage-dark);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.stats-jump:hover {
+  background: #e3f1df;
+}
+
 .unit-toggle {
   display: inline-flex;
   padding: 3px;
@@ -1064,6 +1079,22 @@ tbody tr:hover {
   margin-top: 5px;
   color: #627363;
   font-size: 12px;
+}
+
+.map-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  margin-top: 5px;
+  color: var(--sage-dark);
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.map-link:hover {
+  color: #214b32;
 }
 
 .amount-primary {
@@ -1489,6 +1520,11 @@ tbody tr:hover {
     padding: 27px 0 19px;
   }
 
+  body.has-results .hero,
+  body.has-results .search-card.is-collapsed + .quick-regions {
+    display: none;
+  }
+
   .eyebrow {
     font-size: 11px;
   }
@@ -1717,6 +1753,10 @@ tbody tr:hover {
     scroll-margin-top: calc(76px + env(safe-area-inset-top, 0px));
   }
 
+  body.has-results .results-section {
+    margin-top: 18px;
+  }
+
   .results-heading {
     align-items: flex-start;
     flex-direction: column;
@@ -1730,9 +1770,15 @@ tbody tr:hover {
   }
 
   .unit-option,
-  .share-button {
+  .share-button,
+  .stats-jump {
     min-height: 44px;
     font-size: 13px;
+  }
+
+  .stats-jump {
+    padding-inline: 9px;
+    font-size: 12px;
   }
 
   .share-panel {
@@ -1773,7 +1819,9 @@ tbody tr:hover {
 
   .stats-grid {
     gap: 8px;
+    margin-top: 25px;
     margin-bottom: 22px;
+    scroll-margin-top: calc(76px + env(safe-area-inset-top, 0px));
   }
 
   .deal-overview {
@@ -2001,6 +2049,17 @@ tbody tr:hover {
   .building-detail {
     margin-top: 3px;
     line-height: 1.4;
+  }
+
+  .map-link {
+    min-height: 44px;
+    margin-top: 8px;
+    padding: 0 11px;
+    border: 1px solid #ccdec9;
+    border-radius: 9px;
+    background: #f1f7ee;
+    font-size: 12px;
+    text-decoration: none;
   }
 
   .amount-primary {

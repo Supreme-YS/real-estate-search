@@ -1,4 +1,4 @@
-# 자연이랑 영석이랑 살 집은 어디일까?
+# 어디일까?
 
 우리에게 잘 맞는 집을 찾기 위해, 동네의 실거래 신고 자료를 지역·부동산 유형·거래년월·면적·가격대별로 살펴보는 웹사이트입니다. [k-skill의 `real-estate-search` 스킬](https://github.com/NomaDamas/k-skill/tree/main/real-estate-search)에 문서화된 엔드포인트를 사용합니다.
 

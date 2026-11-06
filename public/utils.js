@@ -181,7 +181,7 @@ export function summarizeTransactions(items, dealType) {
       median_price_10k: prices.length
         ? (prices[middle] + prices[Math.floor((prices.length - 1) / 2)]) / 2 : null,
       min_price_10k: prices[0] ?? null,
-      max_price_10k: prices.at(-1) ?? null,
+      max_price_10k: prices[prices.length - 1] ?? null,
     };
   }
 
@@ -192,7 +192,7 @@ export function summarizeTransactions(items, dealType) {
     median_deposit_10k: deposits.length
       ? (deposits[middle] + deposits[Math.floor((deposits.length - 1) / 2)]) / 2 : null,
     min_deposit_10k: deposits[0] ?? null,
-    max_deposit_10k: deposits.at(-1) ?? null,
+    max_deposit_10k: deposits[deposits.length - 1] ?? null,
     monthly_rent_avg_10k: rents.length
       ? Math.round((rents.reduce((sum, value) => sum + value, 0) / rents.length) * 10) / 10 : null,
   };
@@ -203,7 +203,7 @@ export function formatMonth(value) {
 }
 
 export function formatDate(value) {
-  return /^\d{4}-\d{2}-\d{2}$/.test(value) ? value.replaceAll('-', '.') : '-';
+  return /^\d{4}-\d{2}-\d{2}$/.test(value) ? value.replace(/-/g, '.') : '-';
 }
 
 export function previousKoreanMonth(now = new Date()) {

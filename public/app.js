@@ -858,7 +858,9 @@ function restoreSharedSearch() {
   if (!region || region.length < 2 || region.length > 60) return;
   elements.regionInput.value = region;
   const asset = params.get('asset');
-  if (Object.hasOwn(ASSET_NAMES, asset)) elements.assetSelect.value = asset;
+  if (Object.prototype.hasOwnProperty.call(ASSET_NAMES, asset)) {
+    elements.assetSelect.value = asset;
+  }
   const month = params.get('month');
   if (/^20\d{2}-(0[1-9]|1[0-2])$/.test(month) && month <= currentKoreanMonth()) {
     elements.monthInput.value = month;
@@ -1237,7 +1239,11 @@ elements.headerSearchButton.addEventListener('click', () => {
   setSearchCollapsed(false);
   scrollToSection(elements.searchCard);
 });
-mobileSearch.addEventListener('change', syncMobileSearch);
+if (typeof mobileSearch.addEventListener === 'function') {
+  mobileSearch.addEventListener('change', syncMobileSearch);
+} else {
+  mobileSearch.addListener(syncMobileSearch);
+}
 elements.form.addEventListener('submit', (event) => {
   event.preventDefault();
   performSearch(undefined, true);

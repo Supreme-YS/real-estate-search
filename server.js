@@ -50,6 +50,10 @@ async function fetchFromProxy(res, endpoint, fetchImpl, baseUrl, head) {
     });
   } catch (error) {
     const timedOut = error?.name === 'TimeoutError' || error?.name === 'AbortError';
+    console.warn('[real-estate-search] proxy request failed', {
+      path: endpoint.split('?')[0],
+      reason: timedOut ? 'timeout' : 'connection',
+    });
     sendJson(res, timedOut ? 504 : 502, {
       error: timedOut
         ? '조회 시간이 초과되었습니다. 잠시 후 다시 시도해 주세요.'
@@ -62,11 +66,19 @@ async function fetchFromProxy(res, endpoint, fetchImpl, baseUrl, head) {
   try {
     data = await upstream.json();
   } catch {
+    console.warn('[real-estate-search] proxy returned invalid JSON', {
+      path: endpoint.split('?')[0],
+      status: upstream.status,
+    });
     sendJson(res, 502, { error: '실거래가 서비스에서 올바른 응답을 받지 못했습니다.' }, head);
     return;
   }
 
   if (!upstream.ok) {
+    console.warn('[real-estate-search] proxy returned an error', {
+      path: endpoint.split('?')[0],
+      status: upstream.status,
+    });
     const message = upstream.status === 429
       ? '조회 요청이 많습니다. 잠시 후 다시 시도해 주세요.'
       : upstream.status === 503
@@ -78,6 +90,9 @@ async function fetchFromProxy(res, endpoint, fetchImpl, baseUrl, head) {
   }
 
   if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    console.warn('[real-estate-search] proxy returned invalid data', {
+      path: endpoint.split('?')[0],
+    });
     sendJson(res, 502, { error: '실거래가 서비스에서 올바른 응답을 받지 못했습니다.' }, head);
     return;
   }

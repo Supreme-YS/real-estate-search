@@ -39,11 +39,15 @@ test('홈페이지와 정적 파일을 제공한다', async () => {
     assert.match(html, /id="deal-overview"/);
     assert.match(html, /id="compare-section"/);
     assert.match(html, /id="insights-section"/);
+    assert.match(html, /id="stats-jump"/);
 
     const script = await fetch(`${base}/app.js`);
     assert.equal(script.status, 200);
     assert.match(script.headers.get('content-type'), /javascript/);
-    assert.match(await script.text(), /performSearch/);
+    const javascript = await script.text();
+    assert.match(javascript, /performSearch/);
+    assert.match(javascript, /createMapSearchUrl/);
+    assert.match(javascript, /syncResultOrder/);
 
     const missing = await fetch(`${base}/server.js`);
     assert.equal(missing.status, 404);

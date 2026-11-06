@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
+  createMapSearchUrl,
   currentKoreanMonth,
   filterByArea,
   filterByPrice,
@@ -18,6 +19,40 @@ import {
   summarizeTransactions,
   toggleComparedTransaction,
 } from '../public/utils.js';
+
+test('건물명과 동으로 카카오맵 검색 링크를 안전하게 만든다', () => {
+  const url = new URL(createMapSearchUrl('서울특별시 강남구', {
+    name: ' 은마/1차? #2 ',
+    district: ' 대치동 ',
+  }));
+  assert.equal(url.origin, 'https://map.kakao.com');
+  assert.equal(decodeURIComponent(url.pathname), '/link/search/서울특별시 강남구 대치동 은마/1차? #2');
+  assert.equal(url.search, '');
+  assert.equal(url.hash, '');
+
+  assert.equal(
+    decodeURIComponent(new URL(createMapSearchUrl('서울특별시 강남구', {
+      name: '', district: '대치동',
+    })).pathname),
+    '/link/search/서울특별시 강남구 대치동',
+  );
+  assert.equal(createMapSearchUrl('서울특별시 강남구', { name: ' ', district: null }), null);
+  assert.equal(createMapSearchUrl('', null), null);
+});
+
+test('단지명 끝 괄호 설명이 지도 검색을 막으면 괄호만 제외해 검색한다', () => {
+  const searchQuery = (name) => decodeURIComponent(new URL(createMapSearchUrl(
+    '서울특별시 강남구', { name, district: '자곡동' },
+  )).pathname);
+  assert.equal(searchQuery('강남한양수자인(4단지)'),
+    '/link/search/서울특별시 강남구 자곡동 강남한양수자인');
+  assert.equal(searchQuery('강남한양수자인 (4단지)(419동)'),
+    '/link/search/서울특별시 강남구 자곡동 강남한양수자인');
+  assert.equal(searchQuery('래미안(강남)아파트'),
+    '/link/search/서울특별시 강남구 자곡동 래미안(강남)아파트');
+  assert.equal(searchQuery('(4단지)'),
+    '/link/search/서울특별시 강남구 자곡동 (4단지)');
+});
 
 test('만원 단위 원본 금액을 정확한 원화 표기로 바꾼다', () => {
   assert.equal(formatKrw10k(245000), '24억 5,000만 원');
